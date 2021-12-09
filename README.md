@@ -49,6 +49,8 @@ Reports are generated with two levels of break-down: (1) all games, all wins, al
 Overview
 ===========
 Book Moves: 5
+Even Eval: +/- 100
+Suspicious: +/- 5%
 
 Report Games: 123
 Report Moves: 1312
@@ -64,7 +66,7 @@ All Games
 ...
 Position Eval			Moves		T1%		T2%		T3%
 -----------------------------------------------------------------------------------------------
-Even (+/- 100 CP)		368        	40.22 (-2.52%)	58.97 (+1.60%)	70.65 (+5.50%)
+Even (+/- 100 CP)		368        	40.22 (-2.52)	58.97 (+1.60)	70.65 (+5.50)
 ...
 ...
 ...
