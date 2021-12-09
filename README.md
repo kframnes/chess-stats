@@ -10,7 +10,8 @@ Given a DB host construct schema necessary for the storage and reporting of stat
 create table games
 (
 	id int auto_increment,
-	site enum('OTB', 'Chess_com', 'Lichess_org') not null,
+	site enum('Chess_com', 'Lichess_org') not null,
+	game_link varchar(100) not null,
 	type enum('Blitz', 'Rapid', 'Classical') not null,
 	white_player varchar(50) not null,
 	black_player varchar(50) not null,
