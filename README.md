@@ -3,24 +3,25 @@ A system for importing (from pgn) and reporting on Chess move statistics.
 
 # Modes
 
-### Setup
-Given a DB host construct schema necessary for the storage and reporting of statistics.
-
+### Schema
 ```
 create table games
 (
 	id int auto_increment,
-	site enum('Chess_com', 'Lichess_org') not null,
-	game_link varchar(100) not null,
-	type enum('Blitz', 'Rapid', 'Classical') not null,
+	site enum('CHESS_COM', 'LICHESS_ORG') not null,
+	game_key varchar(255) not null,
+	type enum('BLITZ', 'RAPID', 'CLASSICAL') not null,
 	white_player varchar(50) not null,
 	black_player varchar(50) not null,
-	black_elo int null,
 	white_elo int null,
-  	result enum('1-0', '0-1', '1/2-1/2') not null,
+	black_elo int null,
+  	result enum('WHITE_WIN', 'BLACK_WIN', 'DRAW') not null,
 	constraint games_pk
 		primary key (id)
 );
+
+create index games__ux
+    on games (site, game_key, white_player, black_player);
 
 create table moves
 (
@@ -30,12 +31,15 @@ create table moves
 	move_number int not null,
 	eval_before float not null comment 'position eval before this move',
 	eval_after float not null comment 'position eval after this move',
-	mating boolean not null 'was there a mate-in-N in the position',
+	mate_in int null 'there a mate-in-N in the position',
   	move_t int null comment 'what engine move was this; null if not recommended by engine',
   	forced boolean not null 'was the move considered forcing; within engine recommendation, but only option',
 	constraint moves_pk
 		primary key (id)
 );
+
+create index moves__game_id
+    on moves (game_id);
 ```
 
 ### Import

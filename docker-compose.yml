@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+
+  mysql:
+    image: mysql:5.7.36
+    ports:
+      - "127.0.0.1:3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 'pass'
+      MYSQL_USER: 'user'
+      MYSQL_PASS: 'pass'
+    volumes:
+      - type: bind
+        source: /Users/keithframnes/Documents/workspace/volumes/chess-stats
+        target: /var/lib/mysql
