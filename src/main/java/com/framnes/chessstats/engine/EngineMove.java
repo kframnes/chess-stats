@@ -2,8 +2,6 @@ package com.framnes.chessstats.engine;
 
 public class EngineMove {
 
-    private EngineMove checkmate = new EngineMove();
-
     private String move;
     private int moveEvaluation;
     private boolean isMating;
@@ -62,10 +60,6 @@ public class EngineMove {
 
     }
 
-    public EngineMove getCheckmate() {
-        return checkmate;
-    }
-
     public String getMove() {
         return move;
     }
@@ -80,6 +74,10 @@ public class EngineMove {
 
     public Integer getMateIn() {
         return mateIn;
+    }
+
+    public boolean isMate() {
+        return isMating && mateIn != null && mateIn.equals(0);
     }
 
 }

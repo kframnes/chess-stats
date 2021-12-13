@@ -45,6 +45,14 @@ create index moves__game_id
 ### Import
 Import moves and store statistics.
 
+```
+Importing 50 games  [===            ] 15%
+
+1/50 > keithframnes - random player  [===============] Done.
+2/50 > keithframnes - random player  [===========    ] 60%
+3/50 > keithframnes - random player  [========       ] 58%
+```
+
 ### Report
 Query for relavent cross-section of data and display report.
 
