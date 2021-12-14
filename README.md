@@ -46,15 +46,15 @@ create index moves__game_id
 Import moves and store statistics.
 
 ```
-Importing 50 games  [===            ] 15%
-
-1/50 > keithframnes - random player  [===============] Done.
-2/50 > keithframnes - random player  [===========    ] 60%
-3/50 > keithframnes - random player  [========       ] 58%
+Importing 3/50 games            [===            ] 15%
+------------------------------------------------------------
+keithframnes - random player    [===============] 100%
+keithframnes - random player    [===========    ] 60%
+keithframnes - random player    [========       ] 58%
 ```
 
 ### Report
-Query for relavent cross-section of data and display report.
+Query for relevant cross-section of data and display report.
 
 Reports are generated with two levels of break-down: (1) all games, all wins, all loses first; (2) vs elo, position eval, etc. second.
 
