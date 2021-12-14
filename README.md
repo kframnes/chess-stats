@@ -20,8 +20,8 @@ create table games
 		primary key (id)
 );
 
-create index games__ux
-    on games (site, game_key, white_player, black_player);
+create unique index games__ux
+	on games (game_key);
 
 create table moves
 (

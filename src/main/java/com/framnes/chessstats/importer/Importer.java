@@ -1,7 +1,8 @@
-package com.framnes.chessstats;
+package com.framnes.chessstats.importer;
 
 import com.framnes.chessstats.config.ChessStatsModule;
-import com.framnes.chessstats.dao.GamesDao;
+import com.framnes.chessstats.console.ImportConsole;
+import com.framnes.chessstats.dao.ChessGamesDao;
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -22,17 +23,14 @@ public class Importer {
     public final static Object LOCK = new Object();
 
     private ExecutorService executor;
-    private final GamesDao gamesDao;
+    private final ChessGamesDao chessGamesDao;
 
     @Inject
     public Importer(Jdbi jdbi) {
-        this.gamesDao = jdbi.onDemand(GamesDao.class);
+        this.chessGamesDao = jdbi.onDemand(ChessGamesDao.class);
     }
 
     public void run(String importPath, int numThreads) {
-
-        // Create executor with number of threads requested
-        this.executor = Executors.newFixedThreadPool(numThreads);
 
         // Initialize our import target, which can be a PGN file, or a directory of
         // PGN files.
@@ -44,17 +42,32 @@ public class Importer {
 
         List<PgnHolder> pgns = new ArrayList<>();
         if (importTarget.isDirectory()) {
-            System.out.println("Processing directory at: " + importTarget.getAbsolutePath());
-            System.out.println();
             File[] files = importTarget.listFiles((file) -> file.getName().endsWith(".pgn"));
             for (File file : files) {
                 pgns.add(new PgnHolder(file.getAbsolutePath()));
             }
         } else {
-            System.out.println("Processing file at: " + importTarget.getAbsolutePath());
-            System.out.println();
             pgns.add(new PgnHolder(importTarget.getAbsolutePath()));
         }
+
+        int totalGames = 0;
+        try {
+            for (PgnHolder pgnHolder : pgns) {
+                pgnHolder.loadPgn();
+                totalGames += pgnHolder.getGame().size();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("There was an issue loading PGN file", e);
+        }
+
+        // Create executor with number of threads requested
+        this.executor = Executors.newFixedThreadPool(numThreads);
+
+        // Initialize jobs
+        ImportConsole console = new ImportConsole(totalGames, numThreads);
+        pgns.stream().flatMap(pgnHolder -> pgnHolder.getGame().stream())
+                .map(game -> new ImportWorker(chessGamesDao, console, game))
+                .forEach(executor::submit);
 
     }
 

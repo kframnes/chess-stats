@@ -1,6 +1,6 @@
 package com.framnes.chessstats.model;
 
-public class Move {
+public class ChessMove {
 
     private int id;
     private int gameId;

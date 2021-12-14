@@ -12,12 +12,9 @@ public class ChessStatsModule extends AbstractModule {
 
     @Provides
     public Jdbi providesJdbi() {
-
-        Jdbi jdbi = Jdbi.create("jdbc:mysql:User=root;Password=pass;Database=chess;Server=127.0.0.1;Port=3306;");
+        Jdbi jdbi = Jdbi.create("jdbc:mysql://127.0.0.1:3306/chess?user=root&password=pass");
         jdbi.installPlugin(new SqlObjectPlugin());
-
         return jdbi;
-
     }
 
     @Provides

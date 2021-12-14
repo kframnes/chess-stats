@@ -1,6 +1,10 @@
 package com.framnes.chessstats.model;
 
-public class Game {
+import com.framnes.chessstats.util.GameKeyGenerator;
+import com.github.bhlangonijr.chesslib.game.Game;
+import com.github.bhlangonijr.chesslib.move.MoveConversionException;
+
+public class ChessGame {
 
     private int id;
     private GameSite gameSite;
@@ -14,6 +18,21 @@ public class Game {
     private Integer whiteElo;
     private Integer blackElo;
     private GameResult gameResult;
+
+    public ChessGame() {}
+
+    public ChessGame(Game game) throws MoveConversionException {
+
+        this.gameKey = GameKeyGenerator.generateKey(game);
+        this.gameSite = GameSite.fromTagValue(game.getRound().getEvent().getSite());
+        this.gameType = GameType.fromTagValue(game.getRound().getEvent().getTimeControl().toPGNString());
+        this.whitePlayer = game.getWhitePlayer().getName();
+        this.whiteElo = game.getWhitePlayer().getElo();
+        this.blackPlayer = game.getBlackPlayer().getName();
+        this.blackElo = game.getBlackPlayer().getElo();
+        this.gameResult = GameResult.fromTagValue(game.getResult().getDescription());
+
+    }
 
     public int getId() {
         return id;
