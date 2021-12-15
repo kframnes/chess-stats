@@ -1,11 +1,14 @@
 package com.framnes.chessstats.model;
 
+import com.framnes.chessstats.engine.EvaluatedPosition;
+import com.github.bhlangonijr.chesslib.move.Move;
+
 public class ChessMove {
 
     private int id;
     private int gameId;
     private Color moveColor;
-    private int moveNumber;
+    private int ply;
     private String move;
 
     // Engine evaluation of the position before this move was made.
@@ -34,8 +37,30 @@ public class ChessMove {
     // information on T2.
     private boolean forced;
 
-    // Is this move checkmate?
-    private boolean mate;
+    private boolean finalPosition;
+    private boolean checkMate;
+
+    public ChessMove() {}
+
+    public ChessMove(int gameId, int ply, Move move, EvaluatedPosition before, EvaluatedPosition after, boolean finalPosition) {
+
+        this.gameId = gameId;
+        this.moveColor = ply % 2 == 0 ? Color.BLACK : Color.WHITE;
+        this.ply = ply;
+        this.move = move.getSan();
+
+        this.positionEvalBefore = before.getPositionEvaluation();
+        this.mateInBefore = before.getPositionMateIn();
+
+        this.positionEvalAfter = after.getPositionEvaluation();
+        this.mateInAfter = after.getPositionMateIn();
+        this.finalPosition = finalPosition;
+        this.checkMate = after.getPositionEvaluation() == Integer.MAX_VALUE;
+
+        this.moveEngineRank = before.getEngineRanking(move);
+        this.forced = before.isForced(this.moveEngineRank);
+
+    }
 
     public int getId() {
         return id;
@@ -61,12 +86,12 @@ public class ChessMove {
         this.moveColor = moveColor;
     }
 
-    public int getMoveNumber() {
-        return moveNumber;
+    public int getPly() {
+        return ply;
     }
 
-    public void setMoveNumber(int moveNumber) {
-        this.moveNumber = moveNumber;
+    public void setPly(int moveNumber) {
+        this.ply = moveNumber;
     }
 
     public String getMove() {
@@ -125,12 +150,20 @@ public class ChessMove {
         this.forced = forced;
     }
 
-    public boolean isMate() {
-        return mate;
+    public boolean isFinalPosition() {
+        return finalPosition;
     }
 
-    public void setMate(boolean mate) {
-        this.mate = mate;
+    public void setFinalPosition(boolean finalPosition) {
+        this.finalPosition = finalPosition;
+    }
+
+    public boolean isCheckMate() {
+        return checkMate;
+    }
+
+    public void setCheckMate(boolean checkMate) {
+        this.checkMate = checkMate;
     }
 
 }

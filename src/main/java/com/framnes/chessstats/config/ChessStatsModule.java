@@ -1,6 +1,6 @@
 package com.framnes.chessstats.config;
 
-import com.framnes.chessstats.engine.Engine;
+import com.framnes.chessstats.engine.EngineFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import org.jdbi.v3.core.Jdbi;
@@ -18,8 +18,8 @@ public class ChessStatsModule extends AbstractModule {
     }
 
     @Provides
-    public Engine providesEngine() {
-        return new Engine(ENGINE_PATH);
+    public EngineFactory providesEngineFactory() {
+        return new EngineFactory(ENGINE_PATH);
     }
 
 }

@@ -27,13 +27,17 @@ create table moves
 (
 	id int auto_increment,
 	game_id int not null,
-	move_color enum('white', 'black') not null,
-	move_number int not null,
+	move_color enum('WHITE', 'BLACK') not null,
+	ply int not null,
+	move varchar(10) not null comment 'SAN representation of this move',
 	eval_before float not null comment 'position eval before this move',
+	mate_in_before int null comment 'there a mate-in-N before this move', 
 	eval_after float not null comment 'position eval after this move',
-	mate_in int null 'there a mate-in-N in the position',
-  	move_t int null comment 'what engine move was this; null if not recommended by engine',
-  	forced boolean not null 'was the move considered forcing; within engine recommendation, but only option',
+	mate_in_after int null comment 'there a mate-in-N after this move',
+  	move_rank int null comment 'what engine move was this; null if not recommended by engine',
+  	forced boolean not null comment 'was the move considered forcing; within engine recommendation, but only option',
+  	final_position boolean not null,
+  	checkmate boolean not null,
 	constraint moves_pk
 		primary key (id)
 );

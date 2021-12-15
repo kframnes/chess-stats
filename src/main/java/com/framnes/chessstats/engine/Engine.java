@@ -17,7 +17,7 @@ public class Engine {
     final private static String BEST_MOVE_PATTERN = ".*?multipv ([0-9]+) score cp (-?[0-9]+).*?pv ([a-h1-8]+[bnrq]?).*";
     final private static String BEST_MATE_PATTERN = ".*?multipv ([0-9]+) score mate (-?[0-9]+).*?pv ([a-h1-8]+[bnrq]?).*";
     final private static String CHECKMATE_PATTERN = "info depth 0 score mate 0";
-    final private static int DEPTH = 18;
+    final private static int DEPTH = 15;
     final private static int VARIATIONS = 3;
 
     final private Pattern bestMovePattern;
@@ -56,7 +56,7 @@ public class Engine {
         return isReady();
     }
 
-    public EvaluatedMove bestMoves(String fen) {
+    public EvaluatedPosition bestMoves(String fen) {
         sendCommand("position fen " + fen);
         sendCommand("go depth " + DEPTH);
         return readBestMoves();
@@ -102,11 +102,10 @@ public class Engine {
      *
      * @return an {@code EvaluatedMove} of the best moves (best at 0, decreasing...)
      */
-    private EvaluatedMove readBestMoves() {
+    private EvaluatedPosition readBestMoves() {
 
         EngineMove[] moves = new EngineMove[VARIATIONS];
-
-        input.lines().forEach((output) -> {
+        input.lines().peek((output) -> {
 
             if (output.equalsIgnoreCase(CHECKMATE_PATTERN)) {
                 moves[0] = EngineMove.positionCheckmate();
@@ -127,9 +126,9 @@ public class Engine {
 
             }
 
-        });
+        }).anyMatch((line) -> line.contains("bestmove"));
 
-        return new EvaluatedMove(moves);
+        return new EvaluatedPosition(moves);
 
     }
 
