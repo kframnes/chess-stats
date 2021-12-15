@@ -32,8 +32,19 @@ public class EvaluatedPosition {
     }
 
     public boolean isForced(Integer moveRank) {
+
+        // We have no ranking, so obviously this wasn't forced.
         if (moveRank == null) return false;
-        return false; // TODO <--- this is not right
+
+        // If our move rank was the worst move in a position where the engine
+        // couldn't find all the moves we asked for, we consider the move forced.
+        //
+        // Example:
+        // Best move gives opponent mate in 4, second and only other option gives
+        // mate in 6.  Picking that second option was forced (only other choice
+        // was to pick the best move).
+        return moveRank < engineMoves.length && engineMoves[moveRank] == null;
+
     }
 
 }

@@ -1,5 +1,6 @@
 package com.framnes.chessstats.importer;
 
+import com.framnes.chessstats.console.ITrackableProgress;
 import com.framnes.chessstats.console.ImportConsole;
 import com.framnes.chessstats.dao.ChessGamesDao;
 import com.framnes.chessstats.engine.Engine;
@@ -15,12 +16,16 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImportWorker implements Runnable {
+public class ImportWorker implements Runnable, ITrackableProgress {
 
     private final EngineFactory engineFactory;
     private final ChessGamesDao chessGamesDao;
     private final ImportConsole importConsole;
+
     private final Game game;
+
+    private int analyzedMoves = 0;
+    private boolean failed = false;
 
     public ImportWorker(EngineFactory engineFactory, ChessGamesDao chessGamesDao, ImportConsole importConsole, Game game) {
         this.engineFactory = engineFactory;
@@ -51,13 +56,17 @@ public class ImportWorker implements Runnable {
                     .replace('\n', ' ');
             MoveList moves = new MoveList();
             moves.loadFromSan(moveText);
+            game.setCurrentMoveList(moves);
+
+            // Start console tracking for this item
+            importConsole.track(this);
 
             // Analyze all positions in the game
             List<EvaluatedPosition> positions = new ArrayList<>();
             for (int i=0; i<=moves.size(); i++) {
-                System.out.println("Ply " + i);
                 String fen = i==0 ? moves.getStartFen() : moves.getFen(i);
                 positions.add(engine.bestMoves(fen));
+                analyzedMoves++;
             }
 
             // Insert moves
@@ -68,7 +77,6 @@ public class ImportWorker implements Runnable {
             }
 
             chessGamesDao.insertMoves(chessMoves);
-            System.out.println("Done.");
 
         } catch (UnableToExecuteStatementException insertFailed) {
 
@@ -76,18 +84,38 @@ public class ImportWorker implements Runnable {
             // to raise any sort of alarm.  However, we do want to throw an exception related to
             // some other underlying cause.
             if (!(insertFailed.getCause() instanceof SQLIntegrityConstraintViolationException)) {
-                insertFailed.printStackTrace();
+                failed = true;
             }
 
         } catch (Exception e) {
-            // TODO -- react to real failure
-            e.printStackTrace();
+            failed = true;
         } finally {
             if (engine != null) {
                 engine.shutdown();
             }
+            importConsole.untrack(this);
         }
 
+    }
+
+    @Override
+    public String trackableName() {
+        return String.format("%s - %s", game.getWhitePlayer().getName(), game.getBlackPlayer().getName());
+    }
+
+    @Override
+    public int completedWorkUnits() {
+        return analyzedMoves;
+    }
+
+    @Override
+    public int totalWorkUnits() {
+        return game.getCurrentMoveList().size();
+    }
+
+    @Override
+    public boolean isFailed() {
+        return failed;
     }
 
 }

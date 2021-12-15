@@ -49,11 +49,17 @@ public class ChessMove {
         this.ply = ply;
         this.move = move.getSan();
 
+        // The position eval is from the perspective of the player to move.  This means a negative always means
+        // the player on move is at the disadvantage.
         this.positionEvalBefore = before.getPositionEvaluation();
         this.mateInBefore = before.getPositionMateIn();
 
-        this.positionEvalAfter = after.getPositionEvaluation();
-        this.mateInAfter = after.getPositionMateIn();
+        // The position eval is from the perspective of the player to move.  That player is the opponent when
+        // considering the eval after the move was made, so we must flip this perspective to keep it consistent
+        // with the before evaluations.
+        this.positionEvalAfter = after.getPositionEvaluation() * -1;
+        this.mateInAfter = after.getPositionMateIn() != null ? after.getPositionMateIn() * -1 : null;
+
         this.finalPosition = finalPosition;
         this.checkMate = after.getPositionEvaluation() == Integer.MAX_VALUE;
 

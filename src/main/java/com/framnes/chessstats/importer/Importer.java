@@ -3,7 +3,6 @@ package com.framnes.chessstats.importer;
 import com.framnes.chessstats.config.ChessStatsModule;
 import com.framnes.chessstats.console.ImportConsole;
 import com.framnes.chessstats.dao.ChessGamesDao;
-import com.framnes.chessstats.engine.Engine;
 import com.framnes.chessstats.engine.EngineFactory;
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder;
 import com.google.inject.Guice;
@@ -53,11 +52,9 @@ public class Importer {
             pgns.add(new PgnHolder(importTarget.getAbsolutePath()));
         }
 
-        int totalGames = 0;
         try {
             for (PgnHolder pgnHolder : pgns) {
                 pgnHolder.loadPgn();
-                totalGames += pgnHolder.getGame().size();
             }
         } catch (Exception e) {
             throw new RuntimeException("There was an issue loading PGN file", e);
@@ -67,10 +64,26 @@ public class Importer {
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
         // Initialize jobs
-        ImportConsole console = new ImportConsole(totalGames, numThreads);
+        ImportConsole console = new ImportConsole(executor, LOCK);
         pgns.stream().flatMap(pgnHolder -> pgnHolder.getGame().stream())
                 .map(game -> new ImportWorker(engineFactory, chessGamesDao, console, game))
                 .forEach(executor::submit);
+
+        console.start();
+
+        // Lock until all importing is complete.
+        synchronized (LOCK) {
+            try {
+                LOCK.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace(System.err);
+            }
+        }
+
+        console.stop();
+        executor.shutdown();
+
+        System.exit(0);
 
     }
 
@@ -86,16 +99,6 @@ public class Importer {
         // Kick off the import process.
         Importer importer = injector.getInstance(Importer.class);
         importer.run(importPath, 5);
-
-        // Lock until all importing is complete.
-        synchronized (LOCK) {
-            try {
-                LOCK.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
-            }
-        }
-
 
     }
 
