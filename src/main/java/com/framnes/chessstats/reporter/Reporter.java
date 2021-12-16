@@ -35,7 +35,8 @@ public class Reporter {
         List<ChessMove> comparableMoves = chessGamesDao.getMovesForComparable(targetPlayer, BOOK_DEPTH, minElo, maxElo);
 
         // Build report
-        ReportConsole reporter = new ReportConsole(comparableMoves, playerMoves);
+        ReportConsole reporter = new ReportConsole(comparableMoves, playerMoves,
+                BOOK_DEPTH, minElo, maxElo);
         reporter.run();
 
     }

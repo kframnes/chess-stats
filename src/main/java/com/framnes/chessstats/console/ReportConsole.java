@@ -14,9 +14,17 @@ public class ReportConsole {
     private final List<ChessMove> comparableMoves;
     private final List<ChessMove> targetMoves;
 
-    public ReportConsole(List<ChessMove> comparableMove, List<ChessMove> targetMoves) {
+    private final int bookMoves;
+    private final int minCompElo;
+    private final int maxCompElo;
+
+    public ReportConsole(List<ChessMove> comparableMove, List<ChessMove> targetMoves,
+                         int bookMoves, int minCompElo, int maxCompElo) {
         this.comparableMoves = comparableMove;
         this.targetMoves = targetMoves;
+        this.bookMoves = bookMoves;
+        this.minCompElo = minCompElo;
+        this.maxCompElo = maxCompElo;
     }
 
     public void run() {
@@ -69,6 +77,10 @@ public class ReportConsole {
     private void header() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
+
+        System.out.println(Strings.repeat("=", 120));
+        System.out.printf("%-119s=\n", "= Book Moves: " + bookMoves);
+        System.out.printf("%-119s=\n", "= Comp Elo: " + minCompElo + "-" + maxCompElo);
         System.out.println(Strings.repeat("=", 120));
         System.out.printf(rowPattern, "Position Eval", "N", wrapInWhite("T1%"), wrapInWhite("T2%"),
                 wrapInWhite("T3%"));
