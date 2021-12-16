@@ -22,6 +22,12 @@ create table games
 
 create unique index games__ux
 	on games (game_key);
+	
+create index games__black_index
+	on games (black_player, black_elo);
+
+create index games__white_index
+	on games (white_player, white_elo);
 
 create table moves
 (
@@ -44,6 +50,18 @@ create table moves
 
 create index moves__game_id
     on moves (game_id);
+    
+create table cheaters
+(
+	id int auto_increment,
+	player_name varchar(50) not null,
+	site enum('CHESS_COM', 'LICHESS_ORG') not null,
+	constraint cheaters_pk
+		primary key (id)
+);
+
+create unique index cheaters_player_name_site_uindex
+	on cheaters (player_name, site);
 ```
 
 ### Import
@@ -63,19 +81,6 @@ Query for relevant cross-section of data and display report.
 Reports are generated with two levels of break-down: (1) all games, all wins, all loses first; (2) vs elo, position eval, etc. second.
 
 ```
-Overview
-===========
-Book Moves: 5
-Even Eval: +/- 100
-Suspicious: +/- 5%
-
-Report Games: 123
-Report Moves: 1312
-
-Related Elo: +/- 50
-Related Games: 302
-Related Moves: 4235
-
 All Games
 ===========
 ...

@@ -40,6 +40,21 @@
                             </transformers>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>reporter</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>chess-stats-reporter</finalName>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.framnes.chessstats.reporter.Reporter</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
