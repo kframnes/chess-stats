@@ -9,7 +9,8 @@ import java.util.stream.Collectors;
 
 public class ReportConsole {
 
-    private static final String rowPattern = "%-40s%-20s%-30s%-30s%-30s\n";
+    private static final String tRowPattern = "%-40s%-20s%-30s%-30s%-30s\n";
+    private static final String flipRowPattern = "%-40s%-30s\n";
 
     private final List<ChessMove> comparableMoves;
     private final List<ChessMove> targetMoves;
@@ -30,30 +31,93 @@ public class ReportConsole {
     public void run() {
 
         header();
-        printRow("Losing with forced mate", (move) -> move.getMateInBefore() != null && move.getMateInBefore() < 0);
-        printRow("Losing by 1000+ CP", (move) -> move.getPositionEvalBefore() <= -1000);
-        printRow("Losing by 800-999 CP", (move) -> move.getPositionEvalBefore() <= -800 && move.getPositionEvalBefore() > -1000);
-        printRow("Losing by 600-799 CP", (move) -> move.getPositionEvalBefore() <= -600 && move.getPositionEvalBefore() > -800);
-        printRow("Losing by 400-599 CP", (move) -> move.getPositionEvalBefore() <= -400 && move.getPositionEvalBefore() > -600);
-        printRow("Losing by 200-399 CP", (move) -> move.getPositionEvalBefore() <= -200 && move.getPositionEvalBefore() > -400);
-        printRow("Losing by 50-199 CP", (move) -> move.getPositionEvalBefore() <= -50 && move.getPositionEvalBefore() > -200);
-        printRow("Even +/- 50 CP", (move) -> move.getPositionEvalBefore() < 50 && move.getPositionEvalBefore() > -50);
-        printRow("Winning by 50-199 CP", (move) -> move.getPositionEvalBefore() >= 50 && move.getPositionEvalBefore() < 200);
-        printRow("Winning by 200-399 CP", (move) -> move.getPositionEvalBefore() >= 200 && move.getPositionEvalBefore() < 400);
-        printRow("Winning by 400-599 CP", (move) -> move.getPositionEvalBefore() >= 400 && move.getPositionEvalBefore() < 600);
-        printRow("Winning by 600-799 CP", (move) -> move.getPositionEvalBefore() >= 600 && move.getPositionEvalBefore() < 800);
-        printRow("Winning by 800-999 CP", (move) -> move.getPositionEvalBefore() >= 800 && move.getPositionEvalBefore() < 1000);
-        printRow("Winning by 1000+ CP", (move) -> move.getPositionEvalBefore() >= 1000);
-        printRow("Winning with forced mate", (move) -> move.getMateInBefore() != null && move.getMateInBefore() > 0);
-        printRow("Losing", (move) -> move.getPositionEvalBefore() <= 50);
-        printRow("Winning", (move) -> move.getPositionEvalBefore() >= 50);
-        printRow("Total", (move) -> true);
+        printTStatRow("Losing with forced mate", (move) -> move.getMateInBefore() != null && move.getMateInBefore() < 0);
+        printTStatRow("Losing by 1000+ CP", (move) -> move.getPositionEvalBefore() <= -1000);
+        printTStatRow("Losing by 800-999 CP", (move) -> move.getPositionEvalBefore() <= -800 && move.getPositionEvalBefore() > -1000);
+        printTStatRow("Losing by 600-799 CP", (move) -> move.getPositionEvalBefore() <= -600 && move.getPositionEvalBefore() > -800);
+        printTStatRow("Losing by 400-599 CP", (move) -> move.getPositionEvalBefore() <= -400 && move.getPositionEvalBefore() > -600);
+        printTStatRow("Losing by 200-399 CP", (move) -> move.getPositionEvalBefore() <= -200 && move.getPositionEvalBefore() > -400);
+        printTStatRow("Losing by 50-199 CP", (move) -> move.getPositionEvalBefore() <= -50 && move.getPositionEvalBefore() > -200);
+        printTStatRow("Even +/- 50 CP", (move) -> move.getPositionEvalBefore() < 50 && move.getPositionEvalBefore() > -50);
+        printTStatRow("Winning by 50-199 CP", (move) -> move.getPositionEvalBefore() >= 50 && move.getPositionEvalBefore() < 200);
+        printTStatRow("Winning by 200-399 CP", (move) -> move.getPositionEvalBefore() >= 200 && move.getPositionEvalBefore() < 400);
+        printTStatRow("Winning by 400-599 CP", (move) -> move.getPositionEvalBefore() >= 400 && move.getPositionEvalBefore() < 600);
+        printTStatRow("Winning by 600-799 CP", (move) -> move.getPositionEvalBefore() >= 600 && move.getPositionEvalBefore() < 800);
+        printTStatRow("Winning by 800-999 CP", (move) -> move.getPositionEvalBefore() >= 800 && move.getPositionEvalBefore() < 1000);
+        printTStatRow("Winning by 1000+ CP", (move) -> move.getPositionEvalBefore() >= 1000);
+        printTStatRow("Winning with forced mate", (move) -> move.getMateInBefore() != null && move.getMateInBefore() > 0);
+        printTStatRow("Losing", (move) -> move.getPositionEvalBefore() <= 50);
+        printTStatRow("Winning", (move) -> move.getPositionEvalBefore() >= 50);
+        printTStatRow("Total", (move) -> true);
         System.out.println();
+        printGameFlips();
         System.out.println();
 
     }
 
-    private void printRow(String name, Predicate<ChessMove> predicate) {
+    private void printGameFlips() {
+
+        // How many moves did target go from winning --> Losing
+        long targetLosingPositions = this.targetMoves.stream()
+                .filter(move -> move.getPositionEvalBefore() <= 50)
+                .count();
+        long compLosingPositions = this.comparableMoves.stream()
+                .filter(move -> move.getPositionEvalBefore() <= 50)
+                .count();
+        long targetLosingPositionsFlipped = this.targetMoves.stream()
+                .filter(move -> move.getPositionEvalBefore() <= 50)
+                .filter(move -> move.getPositionEvalAfter() >= 50)
+                .count();
+        long compLosingPositionsFlipped = this.comparableMoves.stream()
+                .filter(move -> move.getPositionEvalBefore() <= 50)
+                .filter(move -> move.getPositionEvalAfter() >= 50)
+                .count();
+
+        double targetLosingPositionsFlippedPercentage = (targetLosingPositions > 0)
+                ? 100.0 * targetLosingPositionsFlipped / (double) targetLosingPositions
+                : 0;
+        double compLosingPositionsFlippedPercentage = (compLosingPositions > 0)
+                ? 100.0 * compLosingPositionsFlipped / (double) compLosingPositions
+                : 0;
+
+        String losingToWinning = String.format("%.2f%% (%.2f%%)",
+                targetLosingPositionsFlippedPercentage, compLosingPositionsFlippedPercentage);
+
+        // How many moves did target go from winning --> Losing
+        long targetWinningPositions = this.targetMoves.stream()
+                .filter(move -> move.getPositionEvalBefore() >= 50)
+                .count();
+        long compWinningPositions = this.comparableMoves.stream()
+                .filter(move -> move.getPositionEvalBefore() >= 50)
+                .count();
+        long targetWinningPositionsFlipped = this.targetMoves.stream()
+                .filter(move -> move.getPositionEvalBefore() >= 50)
+                .filter(move -> move.getPositionEvalAfter() <= 50)
+                .count();
+        long compWinningPositionsFlipped = this.comparableMoves.stream()
+                .filter(move -> move.getPositionEvalBefore() >= 50)
+                .filter(move -> move.getPositionEvalAfter() <= 50)
+                .count();
+
+        double targetWinningPositionsFlippedPercentage = (targetWinningPositions > 0)
+                ? 100.0 * targetWinningPositionsFlipped / (double) targetWinningPositions
+                : 0;
+        double compWinningPositionsFlippedPercentage = (compWinningPositions > 0)
+                ? 100.0 * compWinningPositionsFlipped / (double) compWinningPositions
+                : 0;
+
+        String winningToLosing = String.format("%.2f%% (%.2f%%)",
+                targetWinningPositionsFlippedPercentage, compWinningPositionsFlippedPercentage);
+
+        System.out.printf(flipRowPattern, "Winning --> Losing (" + targetWinningPositionsFlipped + "/" + targetWinningPositions + ")",
+                winningToLosing);
+        System.out.printf(flipRowPattern, "Losing --> Winning (" + targetLosingPositionsFlipped + "/" + targetLosingPositions + ")",
+                losingToWinning);
+
+
+    }
+
+    private void printTStatRow(String name, Predicate<ChessMove> predicate) {
 
         List<ChessMove> targetSliceMoves = this.targetMoves.stream()
                 .filter(predicate)
@@ -70,7 +134,7 @@ public class ReportConsole {
         String t2 = tStat(comparableSliceMoves, targetSliceMoves, compN, targetN, 2);
         String t3 = tStat(comparableSliceMoves, targetSliceMoves, compN, targetN, 3);
 
-        System.out.printf(rowPattern, name, statN, t1, t2, t3);
+        System.out.printf(tRowPattern, name, statN, t1, t2, t3);
 
     }
 
@@ -82,7 +146,7 @@ public class ReportConsole {
         System.out.printf("%-119s=\n", "= Book Moves: " + bookMoves);
         System.out.printf("%-119s=\n", "= Comp Elo: " + minCompElo + "-" + maxCompElo);
         System.out.println(Strings.repeat("=", 120));
-        System.out.printf(rowPattern, "Position Eval", "N", wrapInWhite("T1%"), wrapInWhite("T2%"),
+        System.out.printf(tRowPattern, "Position Eval", "N", wrapInWhite("T1%"), wrapInWhite("T2%"),
                 wrapInWhite("T3%"));
         System.out.println(Strings.repeat("=", 120));
     }

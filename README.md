@@ -56,6 +56,7 @@ create table cheaters
 	id int auto_increment,
 	player_name varchar(50) not null,
 	site enum('CHESS_COM', 'LICHESS_ORG') not null,
+	flagged boolean not null,
 	constraint cheaters_pk
 		primary key (id)
 );

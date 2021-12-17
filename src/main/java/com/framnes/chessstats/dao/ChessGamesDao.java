@@ -51,6 +51,7 @@ public interface ChessGamesDao extends SqlObject {
         "WHERE g.white_player = :player " +
             "AND m.move_color = 'WHITE' " +
             "AND m.ply > :bookPlyDepth " +
+            "AND m.forced = 0 " +
         "UNION " +
         "SELECT m.id, m.game_id AS gameId, m.move_color AS moveColor, m.ply, m.move, " +
             "m.eval_before AS positionEvalBefore, m.mate_in_before AS mateInBefore, " +
@@ -61,7 +62,8 @@ public interface ChessGamesDao extends SqlObject {
             "INNER JOIN `moves` m on g.id = m.game_id " +
         "WHERE g.black_player = :player " +
             "AND m.move_color = 'BLACK' " +
-            "AND m.ply > :bookPlyDepth"
+            "AND m.ply > :bookPlyDepth " +
+            "AND m.forced = 0 "
     )
     @RegisterBeanMapper(ChessMove.class)
     List<ChessMove> getMovesForTargetPlayer(@Bind("player") String playerName, @Bind("bookPlyDepth") int bookPlyDepth);
@@ -79,6 +81,7 @@ public interface ChessGamesDao extends SqlObject {
             "AND g.white_elo >= :minElo AND g.white_elo <= :maxElo " +
             "AND m.move_color = 'WHITE' " +
             "AND m.ply > :bookPlyDepth " +
+            "AND m.forced = 0 " +
         "UNION " +
         "SELECT m.id, m.game_id AS gameId, m.move_color AS moveColor, m.ply, m.move, " +
             "m.eval_before AS positionEvalBefore, m.mate_in_before AS mateInBefore, " +
@@ -91,7 +94,8 @@ public interface ChessGamesDao extends SqlObject {
         "WHERE g.black_player <> :player AND c.player_name IS NULL " +
             "AND g.black_elo >= :minElo AND g.black_elo <= :maxElo " +
             "AND m.move_color = 'BLACK' " +
-            "AND m.ply > :bookPlyDepth"
+            "AND m.ply > :bookPlyDepth " +
+            "AND m.forced = 0"
     )
     @RegisterBeanMapper(ChessMove.class)
     List<ChessMove> getMovesForComparable(@Bind("player") String playerName, @Bind("bookPlyDepth") int bookPlyDepth,
