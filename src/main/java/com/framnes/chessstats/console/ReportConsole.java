@@ -46,74 +46,13 @@ public class ReportConsole {
         printTStatRow("Winning by 800-999 CP", (move) -> move.getPositionEvalBefore() >= 800 && move.getPositionEvalBefore() < 1000);
         printTStatRow("Winning by 1000+ CP", (move) -> move.getPositionEvalBefore() >= 1000);
         printTStatRow("Winning with forced mate", (move) -> move.getMateInBefore() != null && move.getMateInBefore() > 0);
-        printTStatRow("Losing", (move) -> move.getPositionEvalBefore() <= 50);
+        printTStatRow("Losing", (move) -> move.getPositionEvalBefore() <= -50);
         printTStatRow("Winning", (move) -> move.getPositionEvalBefore() >= 50);
         printTStatRow("Total", (move) -> true);
         System.out.println();
-        printGameFlips();
+        //printGameFlips();
+        printAdvantageTransitions();
         System.out.println();
-
-    }
-
-    private void printGameFlips() {
-
-        // How many moves did target go from winning --> Losing
-        long targetLosingPositions = this.targetMoves.stream()
-                .filter(move -> move.getPositionEvalBefore() <= 50)
-                .count();
-        long compLosingPositions = this.comparableMoves.stream()
-                .filter(move -> move.getPositionEvalBefore() <= 50)
-                .count();
-        long targetLosingPositionsFlipped = this.targetMoves.stream()
-                .filter(move -> move.getPositionEvalBefore() <= 50)
-                .filter(move -> move.getPositionEvalAfter() >= 50)
-                .count();
-        long compLosingPositionsFlipped = this.comparableMoves.stream()
-                .filter(move -> move.getPositionEvalBefore() <= 50)
-                .filter(move -> move.getPositionEvalAfter() >= 50)
-                .count();
-
-        double targetLosingPositionsFlippedPercentage = (targetLosingPositions > 0)
-                ? 100.0 * targetLosingPositionsFlipped / (double) targetLosingPositions
-                : 0;
-        double compLosingPositionsFlippedPercentage = (compLosingPositions > 0)
-                ? 100.0 * compLosingPositionsFlipped / (double) compLosingPositions
-                : 0;
-
-        String losingToWinning = String.format("%.2f%% (%.2f%%)",
-                targetLosingPositionsFlippedPercentage, compLosingPositionsFlippedPercentage);
-
-        // How many moves did target go from winning --> Losing
-        long targetWinningPositions = this.targetMoves.stream()
-                .filter(move -> move.getPositionEvalBefore() >= 50)
-                .count();
-        long compWinningPositions = this.comparableMoves.stream()
-                .filter(move -> move.getPositionEvalBefore() >= 50)
-                .count();
-        long targetWinningPositionsFlipped = this.targetMoves.stream()
-                .filter(move -> move.getPositionEvalBefore() >= 50)
-                .filter(move -> move.getPositionEvalAfter() <= 50)
-                .count();
-        long compWinningPositionsFlipped = this.comparableMoves.stream()
-                .filter(move -> move.getPositionEvalBefore() >= 50)
-                .filter(move -> move.getPositionEvalAfter() <= 50)
-                .count();
-
-        double targetWinningPositionsFlippedPercentage = (targetWinningPositions > 0)
-                ? 100.0 * targetWinningPositionsFlipped / (double) targetWinningPositions
-                : 0;
-        double compWinningPositionsFlippedPercentage = (compWinningPositions > 0)
-                ? 100.0 * compWinningPositionsFlipped / (double) compWinningPositions
-                : 0;
-
-        String winningToLosing = String.format("%.2f%% (%.2f%%)",
-                targetWinningPositionsFlippedPercentage, compWinningPositionsFlippedPercentage);
-
-        System.out.printf(flipRowPattern, "Winning --> Losing (" + targetWinningPositionsFlipped + "/" + targetWinningPositions + ")",
-                winningToLosing);
-        System.out.printf(flipRowPattern, "Losing --> Winning (" + targetLosingPositionsFlipped + "/" + targetLosingPositions + ")",
-                losingToWinning);
-
 
     }
 
@@ -142,13 +81,13 @@ public class ReportConsole {
         System.out.print("\033[H\033[2J");
         System.out.flush();
 
-        System.out.println(Strings.repeat("=", 120));
-        System.out.printf("%-119s=\n", "= Book Moves: " + bookMoves);
-        System.out.printf("%-119s=\n", "= Comp Elo: " + minCompElo + "-" + maxCompElo);
-        System.out.println(Strings.repeat("=", 120));
+        System.out.println(Strings.repeat("=", 112));
+        System.out.printf("%-111s=\n", "= Book Moves: " + bookMoves);
+        System.out.printf("%-111s=\n", "= Comp Elo: " + minCompElo + "-" + maxCompElo);
+        System.out.println(Strings.repeat("=", 112));
         System.out.printf(tRowPattern, "Position Eval", "N", wrapInWhite("T1%"), wrapInWhite("T2%"),
                 wrapInWhite("T3%"));
-        System.out.println(Strings.repeat("=", 120));
+        System.out.println(Strings.repeat("=", 112));
     }
 
     private String tStat(List<ChessMove> comparableSliceMoves, List<ChessMove> targetSliceMoves,
@@ -174,6 +113,91 @@ public class ReportConsole {
         } else {
             return wrapInRed(tStatString);
         }
+
+    }
+
+    private void printAdvantageTransitions() {
+
+        String losingToEvenStat = transitionStat(
+                move -> move.getPositionEvalBefore() <= -50,
+                move -> move.getPositionEvalAfter() > -50 && move.getPositionEvalAfter() < 50
+        );
+        String evenToWinningStat = transitionStat(
+                move -> move.getPositionEvalBefore() > -50 && move.getPositionEvalBefore() < 50,
+                move -> move.getPositionEvalAfter() >= 50
+        );
+
+        String winningToEven = transitionStat(
+                move -> move.getPositionEvalBefore() >= 50,
+                move -> move.getPositionEvalAfter() > -50 && move.getPositionEvalAfter() < 50
+        );
+        String evenToLosingStat = transitionStat(
+                move -> move.getPositionEvalBefore() > -50 && move.getPositionEvalAfter() < 50,
+                move -> move.getPositionEvalAfter() >= 50
+        );
+
+        // Directional Pieces
+        String losingToEvenArrow = Strings.repeat("—", 14) +
+                losingToEvenStat +
+                Strings.repeat("—", 15) + "▶";
+        String evenToWinningArrow = Strings.repeat("—", 14) +
+                evenToWinningStat +
+                Strings.repeat("—", 15) + "▶";
+        String winningToEvenArrow = "◀" + Strings.repeat("—", 13) +
+                evenToLosingStat +
+                Strings.repeat("—", 16);
+        String evenToLosingArrow = "◀" + Strings.repeat("—", 13) +
+                winningToEven +
+                Strings.repeat("—", 16);
+
+        // Middle Legend
+        String losingLabel = String.format("%-12s", "LOSING");
+        String evenLabel = "EVEN";
+        String winningLabel = String.format("%12s", "WINNING");
+
+        System.out.printf("%s%7s%s%-7s\n",
+                Strings.repeat(" ", 8),
+                losingToEvenArrow,
+                Strings.repeat(" ", 8),
+                evenToWinningArrow
+        );
+        System.out.printf("%-54s%s%54s\n", losingLabel, evenLabel, winningLabel);
+        System.out.printf("%s%7s%s%-7s\n",
+                Strings.repeat(" ", 8),
+                evenToLosingArrow,
+                Strings.repeat(" ", 8),
+                winningToEvenArrow
+        );
+
+    }
+
+    private String transitionStat(Predicate<ChessMove> basePredicate, Predicate<ChessMove> flippedPredicate) {
+
+        long targetPositionsN = this.targetMoves.stream()
+                .filter(basePredicate)
+                .count();
+        long targetPositionsF = this.targetMoves.stream()
+                .filter(basePredicate)
+                .filter(flippedPredicate)
+                .count();
+
+        long compPositionsN = this.comparableMoves.stream()
+                .filter(basePredicate)
+                .count();
+        long compPositionsF = this.comparableMoves.stream()
+                .filter(basePredicate)
+                .filter(flippedPredicate)
+                .count();
+
+        double targetPositionsPerc = (targetPositionsN > 0)
+                ? 100.0 * targetPositionsF / (double) targetPositionsN
+                : 0;
+        double compPositionsPerc = (compPositionsN > 0)
+                ? 100.0 * compPositionsF / (double) compPositionsN
+                : 0;
+
+        String transitionStat = String.format("%-6.2f (%5.2f)", targetPositionsPerc, compPositionsPerc);
+        return wrapInWhite(transitionStat);
 
     }
 

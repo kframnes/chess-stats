@@ -15,10 +15,8 @@ public class GameKeyGenerator {
             .replaceAll("\\[.*","") // Strip away all PGN tags
             .replaceAll("\\n", ""); // Strip away all newlines
 
-        String rawKey = String.format("%s (%s) - %s (%s) | %s",
-                game.getWhitePlayer().getName(), game.getWhitePlayer().getElo(),
-                game.getBlackPlayer().getName(), game.getBlackPlayer().getElo(),
-                rawPgn);
+        String rawKey = String.format("%s - %s | %s",
+                game.getWhitePlayer().getName(), game.getBlackPlayer().getName(), rawPgn);
 
         return Hashing.sha512().hashString(rawKey, StandardCharsets.UTF_8).toString();
 
