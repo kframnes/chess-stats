@@ -106,9 +106,9 @@ public class ReportConsole {
 
         if (targetT < compT) {
             return wrapInWhite(tStatString);
-        } else if (targetT - compT < 1) {
+        } else if (targetT - compT < 2) {
             return wrapInGreen(tStatString);
-        } else if (targetT - compT < 5) {
+        } else if (targetT - compT < 10) {
             return wrapInYellow(tStatString);
         } else {
             return wrapInRed(tStatString);
