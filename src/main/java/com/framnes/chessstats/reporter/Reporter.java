@@ -15,7 +15,7 @@ import java.util.List;
 public class Reporter {
 
     private static final int BOOK_DEPTH = 5;
-    private static final int ELO_RANGE = 50;
+    private static final int ELO_RANGE = 100;
 
     private final ChessGamesDao chessGamesDao;
 
@@ -30,7 +30,7 @@ public class Reporter {
         List<ChessMove> playerMoves = chessGamesDao.getMovesForTargetPlayer(targetPlayer, BOOK_DEPTH*2);
 
         // Fetch moves for comparable players
-        int minElo = chessGamesDao.getMinElo(targetPlayer) - ELO_RANGE;
+        int minElo = chessGamesDao.getMinElo(targetPlayer);
         int maxElo = chessGamesDao.getMaxElo(targetPlayer) + ELO_RANGE;
         List<ChessMove> comparableMoves = chessGamesDao.getMovesForComparable(targetPlayer, BOOK_DEPTH, minElo, maxElo);
 
