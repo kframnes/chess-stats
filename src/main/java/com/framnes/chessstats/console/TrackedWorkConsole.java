@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class ImportConsole {
+public class TrackedWorkConsole {
 
     private static final int PROGRESS_BAR_WIDTH = 20;
     private static final int INFO_WIDTH = 50;
@@ -18,7 +18,7 @@ public class ImportConsole {
 
     private boolean stop = false;
 
-    public ImportConsole(ExecutorService executor, Object LOCK) {
+    public TrackedWorkConsole(ExecutorService executor, Object LOCK) {
 
         // Initialize console environment
         trackables = new ArrayList<>();
@@ -62,7 +62,7 @@ public class ImportConsole {
                 clearScreen();
 
                 // Overall progress
-                String importedStatement = String.format("Imported %d/%d games", executor.getCompletedTaskCount(),
+                String importedStatement = String.format("Processed %d/%d items", executor.getCompletedTaskCount(),
                         executor.getTaskCount());
                 String importedProgress = progressBar((int) executor.getCompletedTaskCount(),
                         (int) executor.getTaskCount());

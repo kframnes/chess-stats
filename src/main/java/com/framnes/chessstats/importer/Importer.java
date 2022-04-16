@@ -1,8 +1,8 @@
 package com.framnes.chessstats.importer;
 
 import com.framnes.chessstats.config.ChessStatsModule;
-import com.framnes.chessstats.console.ImportConsole;
-import com.framnes.chessstats.dao.ChessGamesDao;
+import com.framnes.chessstats.console.TrackedWorkConsole;
+import com.framnes.chessstats.dao.ChessStatsDao;
 import com.framnes.chessstats.engine.EngineFactory;
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder;
 import com.google.inject.Guice;
@@ -23,12 +23,12 @@ public class Importer {
     // Lock to keep the import process alive as it processes Games.
     public final static Object LOCK = new Object();
 
-    private final ChessGamesDao chessGamesDao;
+    private final ChessStatsDao chessStatsDao;
     private final EngineFactory engineFactory;
 
     @Inject
     public Importer(Jdbi jdbi, EngineFactory engineFactory) {
-        this.chessGamesDao = jdbi.onDemand(ChessGamesDao.class);
+        this.chessStatsDao = jdbi.onDemand(ChessStatsDao.class);
         this.engineFactory = engineFactory;
     }
 
@@ -64,9 +64,9 @@ public class Importer {
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
         // Initialize jobs
-        ImportConsole console = new ImportConsole(executor, LOCK);
+        TrackedWorkConsole console = new TrackedWorkConsole(executor, LOCK);
         pgns.stream().flatMap(pgnHolder -> pgnHolder.getGame().stream())
-                .map(game -> new ImportWorker(engineFactory, chessGamesDao, console, game))
+                .map(game -> new ImportWorker(engineFactory, chessStatsDao, console, game))
                 .forEach(executor::submit);
 
         console.start();

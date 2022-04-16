@@ -2,8 +2,9 @@ package com.framnes.chessstats.reporter;
 
 import com.framnes.chessstats.config.ChessStatsModule;
 import com.framnes.chessstats.console.ReportConsole;
-import com.framnes.chessstats.dao.ChessGamesDao;
+import com.framnes.chessstats.dao.ChessStatsDao;
 import com.framnes.chessstats.model.ChessMove;
+import com.framnes.chessstats.model.ChessPlayerStats;
 import com.framnes.chessstats.model.GameSite;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -14,29 +15,21 @@ import java.util.List;
 
 public class Reporter {
 
-    private static final int BOOK_DEPTH = 5;
-    private static final int ELO_RANGE = 100;
-
-    private final ChessGamesDao chessGamesDao;
+    private final ChessStatsDao chessStatsDao;
 
     @Inject
     public Reporter(Jdbi jdbi) {
-        this.chessGamesDao = jdbi.onDemand(ChessGamesDao.class);
+        this.chessStatsDao = jdbi.onDemand(ChessStatsDao.class);
     }
 
     public void run(String targetPlayer) {
 
-        // Fetch moves for player
-        List<ChessMove> playerMoves = chessGamesDao.getMovesForTargetPlayer(targetPlayer, BOOK_DEPTH*2);
-
-        // Fetch moves for comparable players
-        int minElo = chessGamesDao.getMinElo(targetPlayer);
-        int maxElo = chessGamesDao.getMaxElo(targetPlayer) + ELO_RANGE;
-        List<ChessMove> comparableMoves = chessGamesDao.getMovesForComparable(targetPlayer, BOOK_DEPTH, minElo, maxElo);
+        // Fetch stats
+        ChessPlayerStats targetStats = chessStatsDao.getTargetPlayerStats(GameSite.CHESS_COM, targetPlayer);
+        List<ChessPlayerStats> comparableStats = chessStatsDao.getComparablePlayersStats(GameSite.CHESS_COM);
 
         // Build report
-        ReportConsole reporter = new ReportConsole(comparableMoves, playerMoves,
-                BOOK_DEPTH, minElo, maxElo);
+        ReportConsole reporter = new ReportConsole(comparableStats, targetStats);
         reporter.run();
 
     }
