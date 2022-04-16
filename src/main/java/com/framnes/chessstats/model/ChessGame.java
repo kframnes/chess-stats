@@ -13,23 +13,19 @@ public class ChessGame {
     private String gameKey;
 
     private GameType gameType;
-    private String whitePlayer;
-    private String blackPlayer;
-    private Integer whiteElo;
-    private Integer blackElo;
+    private int whitePlayerId;
+    private int blackPlayerId;
     private GameResult gameResult;
 
     public ChessGame() {}
 
-    public ChessGame(Game game) throws MoveConversionException {
+    public ChessGame(Game game, int whitePlayerId, int blackPlayerId) throws MoveConversionException {
 
         this.gameKey = GameKeyGenerator.generateKey(game);
         this.gameSite = GameSite.fromTagValue(game.getRound().getEvent().getSite());
         this.gameType = GameType.fromTagValue(game.getRound().getEvent().getTimeControl().toPGNString());
-        this.whitePlayer = game.getWhitePlayer().getName();
-        this.whiteElo = game.getWhitePlayer().getElo();
-        this.blackPlayer = game.getBlackPlayer().getName();
-        this.blackElo = game.getBlackPlayer().getElo();
+        this.whitePlayerId = whitePlayerId;
+        this.blackPlayerId = blackPlayerId;
         this.gameResult = GameResult.fromTagValue(game.getResult().getDescription());
 
     }
@@ -66,36 +62,20 @@ public class ChessGame {
         this.gameType = gameType;
     }
 
-    public String getWhitePlayer() {
-        return whitePlayer;
+    public int getWhitePlayerId() {
+        return whitePlayerId;
     }
 
-    public void setWhitePlayer(String whitePlayer) {
-        this.whitePlayer = whitePlayer;
+    public void setWhitePlayerId(int whitePlayer) {
+        this.whitePlayerId = whitePlayerId;
     }
 
-    public String getBlackPlayer() {
-        return blackPlayer;
+    public int getBlackPlayerId() {
+        return blackPlayerId;
     }
 
-    public void setBlackPlayer(String blackPlayer) {
-        this.blackPlayer = blackPlayer;
-    }
-
-    public Integer getWhiteElo() {
-        return whiteElo;
-    }
-
-    public void setWhiteElo(Integer whiteElo) {
-        this.whiteElo = whiteElo;
-    }
-
-    public Integer getBlackElo() {
-        return blackElo;
-    }
-
-    public void setBlackElo(Integer blackElo) {
-        this.blackElo = blackElo;
+    public void setBlackPlayerId(int blackPlayer) {
+        this.blackPlayerId = blackPlayerId;
     }
 
     public GameResult getGameResult() {
