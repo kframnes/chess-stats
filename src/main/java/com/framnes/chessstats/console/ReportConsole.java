@@ -14,7 +14,7 @@ public class ReportConsole {
 
     // How many values must be present in a sample to be significant enough to be included in the mean
     // and standard deviation calculations.
-    private static final int SIGNIFICANT_N = 10;
+    private static final int SIGNIFICANT_N = 20;
 
     private final List<ChessPlayerStats> comparableStats;
     private final ChessPlayerStats targetStats;
