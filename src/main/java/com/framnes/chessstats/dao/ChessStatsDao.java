@@ -683,9 +683,12 @@ public interface ChessStatsDao extends SqlObject {
         "FROM `players` p " +
                 "INNER JOIN `players_stats` s ON p.id = s.player_id " +
         "WHERE p.site = :site " +
-                "AND p.flagged = 0"
+                "AND p.flagged = 0 " +
+                "AND p.elo <= :maxElo " +
+                "AND p.elo >= :minElo"
     )
     @RegisterBeanMapper(ChessPlayerStats.class)
-    public List<ChessPlayerStats> getComparablePlayersStats(@Bind("site") GameSite site);
+    public List<ChessPlayerStats> getComparablePlayersStats(@Bind("site") GameSite site,
+                                                            @Bind("minElo") int minElo, @Bind("maxElo") int maxElo);
 
 }

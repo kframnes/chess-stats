@@ -142,21 +142,21 @@ public class ReportConsole {
             stats[3] = comparableStats.stream()
                     .filter((s) -> quietInvoke(s, nMethod, Integer.class, 0) >= SIGNIFICANT_N)
                     .mapToDouble((s) -> quietInvoke(s, t1Method, Double.class, 0.0))
-                    .average().getAsDouble();
+                    .average().orElseGet(() -> 0.0);
             stats[4] = calculateStandardDeviation(comparableStats, t1Method, nMethod, stats[3]);
 
             stats[5] = quietInvoke(targetStats, t2Method, Double.class, 0.0);
             stats[6] = comparableStats.stream()
                     .filter((s) -> quietInvoke(s, nMethod, Integer.class, 0) >= SIGNIFICANT_N)
                     .mapToDouble((s) -> quietInvoke(s, t2Method, Double.class, 0.0))
-                    .average().getAsDouble();
+                    .average().orElseGet(() -> 0.0);
             stats[7] = calculateStandardDeviation(comparableStats, t2Method, nMethod, stats[6]);
 
             stats[8] = quietInvoke(targetStats, t3Method, Double.class, 0.0);
             stats[9] = comparableStats.stream()
                     .filter((s) -> quietInvoke(s, nMethod, Integer.class, 0) >= SIGNIFICANT_N)
                     .mapToDouble((s) -> quietInvoke(s, t3Method, Double.class, 0.0))
-                    .average().getAsDouble();
+                    .average().orElseGet(() -> 0.0);
             stats[10] = calculateStandardDeviation(comparableStats, t3Method, nMethod, stats[9]);
 
             return stats;

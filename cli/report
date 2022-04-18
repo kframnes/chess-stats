@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -DtargetPlayer=$1 -jar ../target/chess-stats-reporter.jar
+java -DtargetPlayer=$1 -DeloRange=$2 -jar ../target/chess-stats-reporter.jar
