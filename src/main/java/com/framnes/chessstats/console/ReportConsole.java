@@ -178,17 +178,22 @@ public class ReportConsole {
     private void printTStatRow(String name, double[] stats) {
 
         String statN = String.format("%-5d (%-6d)", (int) stats[0], (int) stats[1]);
-        String t1 = tStat(stats[2], stats[3], stats[4]);
-        String t2 = tStat(stats[5], stats[6], stats[7]);
-        String t3 = tStat(stats[8], stats[9], stats[10]);
+        String t1 = tStat((int) stats[0], stats[2], stats[3], stats[4]);
+        String t2 = tStat((int) stats[0], stats[5], stats[6], stats[7]);
+        String t3 = tStat((int) stats[0], stats[8], stats[9], stats[10]);
 
         System.out.printf(tRowPattern, name, statN, t1, t2, t3);
 
     }
 
-    private String tStat(double target, double comparable, double standardDeviation) {
+    private String tStat(Integer n, double target, double comparable, double standardDeviation) {
 
         String tStatString = String.format("%-6.2f (%5.2f | s=%5.2f)", target, comparable, standardDeviation);
+
+        // If we don't have enough moves to consider this slice significant, print it to de-emphasize it
+        if (n < SIGNIFICANT_N) {
+            return wrapAsInsignificance(tStatString);
+        }
 
         if (target < comparable) {
             return wrapInWhite(tStatString);
@@ -237,6 +242,10 @@ public class ReportConsole {
             return wrapInRed(tStatString);
         }
 
+    }
+
+    private String wrapAsInsignificance(String text) {
+        return String.format("\033[0;37m%s\033[0m", text);
     }
 
     private String wrapInWhite(String text) {
