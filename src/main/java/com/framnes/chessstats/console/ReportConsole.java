@@ -94,6 +94,13 @@ public class ReportConsole {
 
     private void reportHeader() {
         System.out.print("\033[H\033[2J");
+        System.out.print("\n");
+        System.out.println(Strings.repeat("=", 145));
+        System.out.println(wrapAsInsignificance("Greyed Out -- Not enough moves to judge."));
+        System.out.println(wrapInWhite("White -- At or below the average."));
+        System.out.println(wrapInGreen("Green -- Above the average by less than 1 standard deviation."));
+        System.out.println(wrapInYellow("Yellow -- Above the average by between 1 and 2 standard deviations."));
+        System.out.println(wrapInRed("Red -- Above the average by between 3 or more standard deviations."));
         System.out.flush();
     }
 
