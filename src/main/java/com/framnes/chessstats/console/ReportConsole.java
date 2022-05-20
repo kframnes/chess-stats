@@ -11,6 +11,7 @@ public class ReportConsole {
 
     private static final String tRowPattern = "%-40s%-20s%-40s%-40s%-40s\n";
     private static final String giveawayPattern = "%-40s%-20s%-30s%-30s%-30s\n";
+    private static final String positionSummary = "%-40s%-20s%-30s\n";
 
     // How many values must be present in a sample to be significant enough to be included in the mean
     // and standard deviation calculations.
@@ -68,25 +69,7 @@ public class ReportConsole {
 
         System.out.println();
 
-//        giveAwayHeader();
-//        printTStatRow("Losing with forced mate", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenLosingWithMate", "getT2WhenLosingWithMate", "getT3WhenLosingWithMate"));
-//        printTStatRow("Losing by 1000+ CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenLosingBy1000", "getT2WhenLosingBy1000", "getT3WhenLosingBy1000"));
-//        printTStatRow("Losing by 800-999 CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenLosingBy800to999", "getT2WhenLosingBy800to999", "getT3WhenLosingBy800to999"));
-//        printTStatRow("Losing by 600-799 CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenLosingBy600to799", "getT2WhenLosingBy600to799", "getT3WhenLosingBy600to799"));
-//        printTStatRow("Losing by 400-599 CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenLosingBy400to599", "getT2WhenLosingBy400to599", "getT3WhenLosingBy400to599"));
-//        printTStatRow("Losing by 200-399 CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenLosingBy200to399", "getT2WhenLosingBy200to399", "getT3WhenLosingBy200to399"));
-//        printTStatRow("Losing by 50-199 CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenLosingBy50to199", "getT2WhenLosingBy50to199", "getT3WhenLosingBy50to199"));
-//        printTStatRow("Even +/- 50 CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenEven", "getT2WhenEven", "getT3WhenEven"));
-//        printTStatRow("Winning by 50-199 CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenWinningBy50to199", "getT2WhenWinningBy50to199", "getT3WhenWinningBy50to199"));
-//        printTStatRow("Winning by 200-399 CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenWinningBy200to399", "getT2WhenWinningBy200to399", "getT3WhenWinningBy200to399"));
-//        printTStatRow("Winning by 400-599 CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenWinningBy400to599", "getT2WhenWinningBy400to599", "getT3WhenWinningBy400to599"));
-//        printTStatRow("Winning by 600-799 CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenWinningBy600to799", "getT2WhenWinningBy600to799", "getT3WhenWinningBy600to799"));
-//        printTStatRow("Winning by 800-999 CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenWinningBy800to999", "getT2WhenWinningBy800to999", "getT3WhenWinningBy800to999"));
-//        printTStatRow("Winning by 1000+ CP", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenWinningBy1000", "getT2WhenWinningBy1000", "getT3WhenWinningBy1000"));
-//        printTStatRow("Winning with forced mate", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenWinningWithMate", "getT2WhenWinningWithMate", "getT3WhenWinningWithMate"));
-//        printTStatRow("Losing", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenLosing", "getT2WhenLosing", "getT3WhenLosing"));
-//        printTStatRow("Winning", calculateGiveawayRow(comparableStats, targetStats, "getT1WhenWinning", "getT2WhenWinning", "getT3WhenWinning"));
-//        printTStatRow("Total", calculateGiveawayRow(comparableStats, targetStats, "getT1Total", "getT2Total", "getT3Total"));
+        summary(comparableStats, targetStats);
 
         System.out.println();
 
@@ -150,21 +133,21 @@ public class ReportConsole {
                     .filter((s) -> quietInvoke(s, nMethod, Integer.class, 0) >= SIGNIFICANT_N)
                     .mapToDouble((s) -> quietInvoke(s, t1Method, Double.class, 0.0))
                     .average().orElseGet(() -> 0.0);
-            stats[4] = calculateStandardDeviation(comparableStats, t1Method, nMethod, stats[3]);
+            stats[4] = calculateStandardDeviation(comparableStats, t1Method, nMethod, stats[3], SIGNIFICANT_N);
 
             stats[5] = quietInvoke(targetStats, t2Method, Double.class, 0.0);
             stats[6] = comparableStats.stream()
                     .filter((s) -> quietInvoke(s, nMethod, Integer.class, 0) >= SIGNIFICANT_N)
                     .mapToDouble((s) -> quietInvoke(s, t2Method, Double.class, 0.0))
                     .average().orElseGet(() -> 0.0);
-            stats[7] = calculateStandardDeviation(comparableStats, t2Method, nMethod, stats[6]);
+            stats[7] = calculateStandardDeviation(comparableStats, t2Method, nMethod, stats[6], SIGNIFICANT_N);
 
             stats[8] = quietInvoke(targetStats, t3Method, Double.class, 0.0);
             stats[9] = comparableStats.stream()
                     .filter((s) -> quietInvoke(s, nMethod, Integer.class, 0) >= SIGNIFICANT_N)
                     .mapToDouble((s) -> quietInvoke(s, t3Method, Double.class, 0.0))
                     .average().orElseGet(() -> 0.0);
-            stats[10] = calculateStandardDeviation(comparableStats, t3Method, nMethod, stats[9]);
+            stats[10] = calculateStandardDeviation(comparableStats, t3Method, nMethod, stats[9], SIGNIFICANT_N);
 
             return stats;
 
@@ -214,39 +197,51 @@ public class ReportConsole {
 
     }
 
-    private void giveAwayHeader() {
-        System.out.println(Strings.repeat("=", 112));
-        System.out.printf(tRowPattern, "Position Eval", "N",
-                wrapInWhite("▼ 500+ CP"),
-                wrapInWhite("▼ 300+ CP"),
-                wrapInWhite("▼ 100+ CP"));
+    private void summary(List<ChessPlayerStats> comparableStats, ChessPlayerStats targetStats) {
 
-        System.out.println(Strings.repeat("=", 112));
-    }
+        System.out.println(Strings.repeat("=", 145));
+        System.out.printf(positionSummary, "Position Description", "N", wrapInWhite("Percentage"));
+        System.out.println(Strings.repeat("=", 145));
+        printSummary(comparableStats, targetStats, "Losing Positions", "getnWhenLosing", "getLosingPercentage");
+        printSummary(comparableStats, targetStats, "Even Positions", "getnWhenEven", "getEvenPercentage");
+        printSummary(comparableStats, targetStats, "Winning Positions", "getnWhenWinning", "getWinningPercentage");
 
-    private void printGiveawayRow(String name, double[] stats) {
-
-        String statN = String.format("%-5d (%-6d)", 0, 0);
-        String pawns = giveawayStat(0.0, 0.0, 0.0);
-        String minors = giveawayStat(0.0, 0.0, 0.0);
-        String majors = giveawayStat(0.0, 0.0, 0.0);
-
-        System.out.printf(giveawayPattern, name, statN, majors, minors, pawns);
 
     }
 
-    private String giveawayStat(double target, double comparable, double standardDeviation) {
+    private void printSummary(List<ChessPlayerStats> comparableStats, ChessPlayerStats targetStats,
+                              String name, String nGetter, String statGetter) {
 
-        String tStatString = String.format("%-6.2f (%5.2f)", target, comparable);
+        try {
 
-        if (target < comparable) {
-            return wrapInWhite(tStatString);
-        } else if (target - comparable < standardDeviation) {
-            return wrapInGreen(tStatString);
-        } else if (target - comparable < (standardDeviation * 2)) {
-            return wrapInYellow(tStatString);
-        } else {
-            return wrapInRed(tStatString);
+            int summarySignificantN = 500;
+
+            Method nMethod = ChessPlayerStats.class.getDeclaredMethod(nGetter);
+            Method statMethod = ChessPlayerStats.class.getDeclaredMethod(statGetter);
+
+            double nTarget = 1.0 * quietInvoke(targetStats, nMethod, Integer.class, 0);
+            double nComparable = 1.0 * comparableStats.stream()
+                    .filter((s) -> quietInvoke(s, nMethod, Integer.class, 0) >= summarySignificantN)
+                    .mapToDouble((s) -> quietInvoke(s, nMethod, Integer.class, 0))
+                    .sum();
+
+            double statTarget = quietInvoke(targetStats, statMethod, Double.class, 0.0);
+            double statComparableMean = comparableStats.stream()
+                    .filter((s) -> s.getnTotal() >= 500)
+                    .mapToDouble((s) -> quietInvoke(s, statMethod, Double.class, 0.0))
+                    .average().orElseGet(() -> 0.0);
+            double statDev = calculateStandardDeviation(comparableStats, statMethod, nMethod, statComparableMean, summarySignificantN);
+
+            String nString = String.format("%-5d (%-6d)", (int) nTarget, (int) nComparable);
+            String statString = String.format("%-6.2f (%5.2f | s=%5.2f)", statTarget, statComparableMean, statDev);
+
+            System.out.printf(positionSummary, name, nString, statString);
+
+        } catch (NoSuchMethodException e) {
+
+            // Somehow we're looking for an invalid method, so just print defaults.
+            System.out.printf(positionSummary, name, "0 (0)", wrapAsInsignificance("0 (0)"));
+
         }
 
     }
@@ -272,34 +267,6 @@ public class ReportConsole {
     }
 
     /**
-     * Calculates the data used to populate a single giveaway row.
-     *
-     * @return a double[] with the following values, by index:
-     *      0 -- number of moves for target player
-     *      1 -- number of moves for comparable players
-     *      2 -- % of moves that the target player gives away > 500 CP
-     *      3 -- % mean of moves that comparable players gives away > 500 CP
-     *      4 -- standard deviation of moves that comparable player gives away > 500 CP
-     *      5 -- % of moves that the target player gives away > 300 CP
-     *      6 -- % mean of moves that comparable players gives away > 300 CP
-     *      7 -- standard deviation of moves that comparable player gives away > 300 CP
-     *      8 -- % of moves that the target player gives away > 100 CP
-     *      9 -- % mean of moves that comparable players gives away > 100 CP
-     *      10 -- standard deviation of moves that comparable player gives away > 100 CP
-     */
-    private double[] calculateGiveawayRow(List<ChessPlayerStats> comparableStats, ChessPlayerStats targetStats,
-                                       String t1Getter, String t2Getter, String t3Getter) {
-
-        return new double[] {
-                0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0,
-                0.0, 0.0
-        };
-
-    }
-
-    /**
      * Calculate the standard deviation for the statistic provided by the {@code Method}, given the mean of this
      * statistic.
      *
@@ -308,15 +275,15 @@ public class ReportConsole {
      */
     private double calculateStandardDeviation(List<ChessPlayerStats> comparableStats,
                                               Method statMethod, Method nMethod,
-                                              double mean) {
+                                              double mean, int significantN) {
 
         double size = comparableStats.stream()
-                .filter((s) -> quietInvoke(s, nMethod, Integer.class, 0) >= SIGNIFICANT_N)
+                .filter((s) -> quietInvoke(s, nMethod, Integer.class, 0) >= significantN)
                 .count();
         if (size < 2) return 0.0;
 
         double sumOfVarianceSquared = comparableStats.stream()
-                .filter((s) -> quietInvoke(s, nMethod, Integer.class, 0) >= SIGNIFICANT_N)
+                .filter((s) -> quietInvoke(s, nMethod, Integer.class, 0) >= significantN)
                 .mapToDouble((s) -> quietInvoke(s, statMethod, Double.class, 0.0))
                 .map((stat) -> stat - mean)
                 .map((variance) -> Math.pow(variance, 2))

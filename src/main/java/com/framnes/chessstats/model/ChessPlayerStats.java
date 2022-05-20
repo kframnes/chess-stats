@@ -1305,4 +1305,32 @@ public class ChessPlayerStats {
     public void setGivesPawnsTotal(double givesPawnsTotal) {
         this.givesPawnsTotal = givesPawnsTotal;
     }
+
+    /**
+     * Pure getters for reporting purposes.
+     *
+     * @return total percentage of positions where player is losing.
+     */
+    public double getLosingPercentage() {
+        return (1.0 * getnWhenLosing() / getnTotal()) * 100.0;
+    }
+
+    /**
+     * Pure getters for reporting purposes.
+     *
+     * @return total percentage of positions where player is even.
+     */
+    public double getEvenPercentage() {
+        return (1.0 * getnWhenEven() / getnTotal()) * 100.0;
+    }
+
+    /**
+     * Pure getters for reporting purposes.
+     *
+     * @return total percentage of positions where player is winning.
+     */
+    public double getWinningPercentage() {
+        return (1.0 * getnWhenWinning() / getnTotal()) * 100.0;
+    }
+
 }
