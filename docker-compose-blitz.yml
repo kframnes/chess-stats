@@ -12,5 +12,5 @@ services:
       MYSQL_PASS: 'pass'
     volumes:
       - type: bind
-        source: /Users/keithframnes/Documents/workspace/volumes/chess-stats
+        source: /Users/keithframnes/Documents/workspace/volumes/chess-stats-blitz
         target: /var/lib/mysql
