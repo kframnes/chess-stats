@@ -7,7 +7,7 @@ import java.util.Set;
 public enum GameType {
 
     BLITZ("180", "180+2", "300", "300+3", "300+5"),
-    RAPID(),
+    RAPID("900+10", "600"),
     CLASSICAL(),
     UNKNOWN();
 
